@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:crudite_flutter/data/sources/fake_posts_data_source.dart';
+import 'package:crudite_flutter/repositories/posts_repository.dart';
 
 void main() {
+  testRepository();
   runApp(
     const CRUDiteApp(),
   );
@@ -31,4 +34,12 @@ class PlaceholderPage extends StatelessWidget {
       body: const Center(child: Text('Hlo World')),
     );
   }
+}
+
+void testRepository() async {
+  final dataSource = FakePostsDataSource();
+  final repository = FakePostsRepository(dataSource);
+
+  final posts = await repository.getAllPosts();
+  print(posts.map((post) => post.title).toList());
 }
