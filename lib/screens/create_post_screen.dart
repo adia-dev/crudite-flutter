@@ -12,14 +12,14 @@ class CreatePostScreen extends ConsumerWidget {
     final descriptionController = TextEditingController();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Créer un Post')),
+      appBar: AppBar(title: const Text('Créer une Crudité')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: titleController,
-              decoration: const InputDecoration(labelText: 'Titre'),
+              decoration: const InputDecoration(labelText: 'Nom de la Crudité'),
             ),
             TextField(
               controller: descriptionController,
@@ -31,13 +31,20 @@ class CreatePostScreen extends ConsumerWidget {
               onPressed: () async {
                 final post = Post(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  title: titleController.text,
-                  description: descriptionController.text,
+                  title: titleController.text.trim(),
+                  description: descriptionController.text.trim(),
                 );
 
                 await ref.read(postsRepositoryProvider).createPost(post);
 
+                // NOTE: Invalider ou rafraîchir pour recharger la liste après la création
+                // TODO: gere ça d'une meilleur maniere
+                ref.invalidate(postsListProvider);
+
                 Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${post.title} a été créé')),
+                );
               },
               child: const Text('Créer'),
             ),

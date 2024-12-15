@@ -41,4 +41,10 @@ class FakePostsDataSource implements PostsDataSource {
     _fakePosts[index] = post;
     return post;
   }
+
+  @override
+  Future<void> deletePost(String postId) async {
+    await Future.delayed(const Duration(seconds: 1));
+    _fakePosts.removeWhere((post) => post.id == postId);
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/post.dart';
 import '../providers/posts_provider.dart';
+import 'post_detail_screen.dart';
 
 class PostsListScreen extends ConsumerWidget {
   const PostsListScreen({Key? key}) : super(key: key);
@@ -12,7 +13,15 @@ class PostsListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Liste des Posts'),
+        title: const Text('CRUDité - Liste des Crudités'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              Navigator.pushNamed(context, '/about');
+            },
+          ),
+        ],
       ),
       body: postsAsyncValue.when(
         data: (posts) => ListView.builder(
@@ -22,6 +31,38 @@ class PostsListScreen extends ConsumerWidget {
             return ListTile(
               title: Text(post.title),
               subtitle: Text(post.description),
+              trailing: SizedBox(
+                width: 100,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/edit',
+                          arguments: {'post': post},
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () async {
+                        await ref
+                            .read(postsRepositoryProvider)
+                            .deletePost(post.id);
+                        // Invalider ou rafraîchir le provider pour recharger la liste
+                        ref.invalidate(postsListProvider);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('${post.title} a été supprimé')),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
               onTap: () {
                 Navigator.push(
                   context,
@@ -41,23 +82,6 @@ class PostsListScreen extends ConsumerWidget {
           Navigator.pushNamed(context, '/create');
         },
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class PostDetailScreen extends StatelessWidget {
-  final Post post;
-
-  const PostDetailScreen({required this.post, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(post.title)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(post.description),
       ),
     );
   }

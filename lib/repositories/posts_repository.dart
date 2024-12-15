@@ -6,6 +6,7 @@ abstract class PostsRepository {
   Future<List<Post>> getAllPosts();
   Future<Post> createPost(Post post);
   Future<Post> updatePost(Post post);
+  Future<void> deletePost(String postId);
 }
 
 class FakePostsRepository implements PostsRepository {
@@ -21,4 +22,7 @@ class FakePostsRepository implements PostsRepository {
 
   @override
   Future<Post> updatePost(Post post) => dataSource.updatePost(post);
+
+  @override
+  Future<void> deletePost(String postId) => dataSource.deletePost(postId);
 }

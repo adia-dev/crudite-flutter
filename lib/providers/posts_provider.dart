@@ -15,3 +15,8 @@ final postsRepositoryProvider = Provider<PostsRepository>((ref) {
 final postsListProvider = FutureProvider<List<Post>>((ref) async {
   return ref.read(postsRepositoryProvider).getAllPosts();
 });
+
+final deletePostProvider =
+    FutureProvider.family<void, String>((ref, postId) async {
+  await ref.read(postsRepositoryProvider).deletePost(postId);
+});
