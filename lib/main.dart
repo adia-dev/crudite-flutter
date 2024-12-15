@@ -28,7 +28,7 @@ class PlaceholderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Flutter CRUD App')),
-      body: const Center(child: Text('Hello World')),
+      body: const Center(child: Text('Hlo World')),
     );
   }
 }
