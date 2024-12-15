@@ -24,58 +24,81 @@ class PostsListScreen extends ConsumerWidget {
         ],
       ),
       body: postsAsyncValue.when(
-        data: (posts) => ListView.builder(
-          itemCount: posts.length,
-          itemBuilder: (context, index) {
-            final post = posts[index];
-            return ListTile(
-              title: Text(post.title),
-              subtitle: Text(post.description),
-              trailing: SizedBox(
-                width: 100,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/edit',
-                          arguments: {'post': post},
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () async {
-                        await ref
-                            .read(postsRepositoryProvider)
-                            .deletePost(post.id);
-                        // Invalider ou rafraîchir le provider pour recharger la liste
-                        ref.invalidate(postsListProvider);
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('${post.title} a été supprimé')),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+        data: (posts) {
+          if (posts.isEmpty) {
+            return const Center(
+              child: Text(
+                'Aucune crudité pour le moment.\n\nAjoutez-en avec le bouton + !',
+                textAlign: TextAlign.center,
               ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PostDetailScreen(post: post),
-                  ),
-                );
-              },
             );
-          },
-        ),
+          }
+
+          return ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              final post = posts[index];
+              return ListTile(
+                title: Text(post.title),
+                subtitle: Text(post.description),
+                trailing: SizedBox(
+                  width: 100,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/edit',
+                            arguments: {'post': post},
+                          );
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () async {
+                          try {
+                            await ref
+                                .read(postsRepositoryProvider)
+                                .deletePost(post.id);
+                            ref.invalidate(postsListProvider);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('${post.title} a été supprimé'),
+                              ),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Erreur lors de la suppression : $e'),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PostDetailScreen(post: post),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Erreur: $error')),
+        error: (error, stackTrace) => Center(
+          child: Text('Erreur: $error'),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

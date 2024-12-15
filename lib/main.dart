@@ -47,7 +47,6 @@ class CRUDiteApp extends StatelessWidget {
         '/create': (context) => const CreatePostScreen(),
         '/about': (context) => const AboutScreen(),
       },
-      // On utilise la route nommée "/edit" avec des arguments
       onGenerateRoute: (settings) {
         if (settings.name == '/edit') {
           final args = settings.arguments as Map<String, dynamic>;
