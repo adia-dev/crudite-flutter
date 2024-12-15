@@ -29,22 +29,40 @@ class CreatePostScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
+                final title = titleController.text.trim();
+                final description = descriptionController.text.trim();
+
+                if (title.isEmpty || description.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Veuillez remplir tous les champs avant de créer une crudité.',
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
                 final post = Post(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  title: titleController.text.trim(),
-                  description: descriptionController.text.trim(),
+                  title: title,
+                  description: description,
                 );
 
-                await ref.read(postsRepositoryProvider).createPost(post);
+                try {
+                  await ref.read(postsRepositoryProvider).createPost(post);
 
-                // NOTE: Invalider ou rafraîchir pour recharger la liste après la création
-                // TODO: gere ça d'une meilleur maniere
-                ref.invalidate(postsListProvider);
+                  ref.invalidate(postsListProvider);
 
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${post.title} a été créé')),
-                );
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('${post.title} a été créé')),
+                  );
+                } catch (error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erreur : $error')),
+                  );
+                }
               },
               child: const Text('Créer'),
             ),

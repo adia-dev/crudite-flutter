@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/post.dart';
 import '../providers/posts_provider.dart';
 
+// TODO: Could use the same screen for both creating and editing
 class EditPostScreen extends ConsumerStatefulWidget {
   final Post post;
 
@@ -20,8 +21,7 @@ class _EditPostScreenState extends ConsumerState<EditPostScreen> {
   void initState() {
     super.initState();
     titleController = TextEditingController(text: widget.post.title);
-    descriptionController =
-        TextEditingController(text: widget.post.description);
+    descriptionController = TextEditingController(text: widget.post.description);
   }
 
   @override
@@ -51,21 +51,41 @@ class _EditPostScreenState extends ConsumerState<EditPostScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
+                final title = titleController.text.trim();
+                final description = descriptionController.text.trim();
+
+                if (title.isEmpty || description.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Veuillez remplir tous les champs avant de modifier la crudité.',
+                      ),
+                    ),
+                  );
+                  return; 
+                }
+
                 final updatedPost = widget.post.copyWith(
-                  title: titleController.text.trim(),
-                  description: descriptionController.text.trim(),
+                  title: title,
+                  description: description,
                 );
 
-                await ref.read(postsRepositoryProvider).updatePost(updatedPost);
+                try {
+                  await ref.read(postsRepositoryProvider).updatePost(updatedPost);
 
-                // Après la mise à jour, on réactualise la liste
-                ref.invalidate(postsListProvider);
+                  ref.invalidate(postsListProvider);
 
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text('${updatedPost.title} a été mis à jour')),
-                );
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${updatedPost.title} a été mis à jour'),
+                    ),
+                  );
+                } catch (error) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erreur : $error')),
+                  );
+                }
               },
               child: const Text('Enregistrer'),
             ),
