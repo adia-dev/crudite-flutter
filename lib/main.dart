@@ -1,9 +1,13 @@
+import 'package:crudite_flutter/screens/create_post_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'screens/posts_list_screen.dart';
 
 void main() {
   runApp(
-    const CRUDiteApp(),
+    const ProviderScope(
+      child: CRUDiteApp(),
+    ),
   );
 }
 
@@ -19,8 +23,9 @@ class CRUDiteApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const PostsListScreen(),
-        // TODO: Implement the rest of the crud you lazy idiot
+        '/': (context) => const
+            PostsListScreen(),
+        '/create': (context) => const CreatePostScreen(),
       },
     );
   }
